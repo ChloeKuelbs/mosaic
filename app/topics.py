@@ -57,3 +57,38 @@ async def literature(slug: str, limit: int = Query(8,ge=1,le=15)):
             return LiteratureResponse(topic=slug,retrieved_at=datetime.now(timezone.utc),items=items)
     except (httpx.HTTPError,ValueError,KeyError,TypeError) as exc:
         raise HTTPException(502,"PubMed is temporarily unavailable. Please retry.") from exc
+
+AGE_GROUPS={"18-24":"young adult","25-34":"adult","35-44":"adult","45-54":"middle aged","55-64":"middle aged","65+":"aged"}
+DOMAINS={"nutrients":"(vitamins OR minerals OR dietary intake OR nutritional deficiency)","exercise":"(physical activity OR resistance training OR aerobic exercise)","sleep":"(sleep quality OR sleep duration)","prevention":"(preventive health OR screening OR disease prevention)"}
+LIFE_STAGES={"":"", "pregnancy":"pregnancy", "postpartum":"postpartum", "perimenopause":"perimenopause", "menopause":"menopause"}
+
+@router.get("/api/wellbeing/literature",response_model=LiteratureResponse)
+async def wellbeing_literature(
+    age: str = Query("25-34"),
+    domain: str = Query("nutrients"),
+    life_stage: str = Query(""),
+    limit: int = Query(8,ge=1,le=12),
+):
+    if age not in AGE_GROUPS or domain not in DOMAINS or life_stage not in LIFE_STAGES:
+        raise HTTPException(422,"Unknown wellbeing filter")
+    # Broad literature discovery only: age and life stage are query terms, not personal medical advice.
+    term=f'{DOMAINS[domain]} AND (women OR female) AND "{AGE_GROUPS[age]}"'
+    if life_stage: term+=f' AND "{LIFE_STAGES[life_stage]}"'
+    base="https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
+    try:
+        async with httpx.AsyncClient(timeout=18,headers={"User-Agent":"Mosaic/0.2 research explorer"}) as client:
+            r=await client.get(base+"esearch.fcgi",params={"db":"pubmed","term":term,"retmode":"json","retmax":limit,"sort":"pub date"})
+            r.raise_for_status()
+            ids=r.json()["esearchresult"]["idlist"]
+            if not ids: return LiteratureResponse(topic="wellbeing",retrieved_at=datetime.now(timezone.utc),items=[])
+            r=await client.get(base+"esummary.fcgi",params={"db":"pubmed","id":",".join(ids),"retmode":"json"})
+            r.raise_for_status()
+            records=r.json()["result"]
+            items=[]
+            for pmid in ids:
+                row=records.get(pmid,{})
+                if not re.fullmatch(r"\d+",pmid) or not row.get("title"): continue
+                items.append(LiteratureItem(pmid=pmid,title=row["title"],journal=row.get("fulljournalname") or row.get("source"),published=row.get("pubdate"),authors=[a["name"] for a in row.get("authors",[])[:4] if a.get("name")],url=f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"))
+            return LiteratureResponse(topic="wellbeing",retrieved_at=datetime.now(timezone.utc),items=items,limitations="Keyword-based PubMed discovery by broad age and life-stage terms; articles may not precisely match the selected age bracket. Not personalized advice or a systematic review.")
+    except (httpx.HTTPError,ValueError,KeyError,TypeError) as exc:
+        raise HTTPException(502,"PubMed is temporarily unavailable. Please retry.") from exc
