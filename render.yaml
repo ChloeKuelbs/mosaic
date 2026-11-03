@@ -1,0 +1,20 @@
+# Two independent services; no paid resources or database required.
+services:
+  - type: web
+    name: mosaic
+    runtime: python
+    plan: free
+    branch: main
+    buildCommand: pip install .
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+  - type: web
+    name: mosaic-dev
+    runtime: python
+    plan: free
+    branch: dev
+    buildCommand: pip install .
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass

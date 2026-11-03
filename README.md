@@ -60,3 +60,20 @@ For a manual live integration check, run the server and the search curl above. C
 `app/static/` holds the interface. Registry content is inserted as text, not HTML. The interface shares the API origin and needs no CORS configuration.
 
 `tests/test_api.py` covers the API through FastAPI's test client and an injected HTTP transport. Future work can add selected-trial comparisons, published evidence, and explicit evidence-quality assessments after the registry contract is validated.
+
+## Public and development hosting (Render)
+
+The root `render.yaml` defines two free Python web services:
+
+| Service | Git branch | Purpose |
+| --- | --- | --- |
+| `mosaic` | `main` | Public, stable version |
+| `mosaic-dev` | `dev` | Testing upcoming changes |
+
+Both deploy after GitHub checks pass, use `/health` for health checks, and run the UI and API together. `.python-version` selects Python 3.13. Service URLs are assigned by Render; names are subject to availability. Both URLs are public: the development service is **not password-protected**. Do not place private data or secrets in either site's content.
+
+To deploy, connect GitHub in Render, choose **New → Blueprint**, select `ChloeKuelbs/mosaic` and its `main` branch, and review the two free services before creating the Blueprint. The `dev` branch must exist before deployment. After both deploy successfully, open each service's assigned URL. Test an intervention search and verify `/health` returns `{"status":"ok"}`.
+
+Work on `dev`, push changes to preview them on the development site, then open a pull request from `dev` to `main`. Merging updates the public site after checks pass. Avoid direct feature changes on `main`.
+
+Free services sleep when idle and share workspace usage allowances; expect a slower first request after inactivity. See [Render free-service limits](https://render.com/docs/free). An always-on plan or development-site authentication can be added later.
