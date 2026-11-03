@@ -97,3 +97,12 @@ To deploy, connect GitHub in Render, choose **New → Blueprint**, select `Chloe
 Work on `dev`, push changes to preview them on the development site, then open a pull request from `dev` to `main`. Merging updates the public site after checks pass. Avoid direct feature changes on `main`.
 
 Free services sleep when idle and share workspace usage allowances; expect a slower first request after inactivity. See [Render free-service limits](https://render.com/docs/free). An always-on plan or development-site authentication can be added later.
+
+## Six-topic women's health research explorer
+
+The homepage now features six linked research areas: bone health/osteoporosis, endometriosis, premenstrual dysphoric disorder (PMDD), postpartum depression, polycystic ovary syndrome (PCOS), and perimenopause/menopause. Each has its own route at `/explore/{slug}`, recent PubMed-indexed publication metadata and source links, topic-scoped ClinicalTrials.gov registry search, trial comparisons, and the existing source-grounded Ask Mosaic tool.
+
+**Evidence boundaries:** PubMed publication titles/metadata are not passed to Ask Mosaic; the AI currently analyzes *selected trial registration metadata only*. This is intentional: literature abstracts and full-text findings require a separate, validated retrieval and citation pipeline. A recent publication is not necessarily high-quality evidence, and registry entries are not treatment results. Avoid clinical decisions based on this prototype.
+
+The visual topic cards are CSS-only scientific-editorial illustrations—no external photos, image licenses, or image-generation runtime dependencies. Live PubMed discovery uses NCBI E-utilities and may occasionally return upstream errors or rate limits; no publications are fabricated as fallback.
+
