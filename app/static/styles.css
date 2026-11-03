@@ -231,3 +231,27 @@ footer a:hover { text-decoration: underline; }
   html { scroll-behavior: auto; }
   button, .trial, .search-row input { transition: none; }
 }
+
+/* Source-grounded AI assistant */
+.ai-panel {
+  margin-top: 58px; border: 1px solid #cfe3de; border-radius: 18px;
+  padding: 32px 36px; background: linear-gradient(135deg, #f5faf7 0%, #eaf5f2 100%);
+}
+.ai-label { margin-left: 9px; font-size: 9px; letter-spacing: .12em; font-weight: 700; color: #226b73; vertical-align: middle; }
+.ai-panel > .subtle { max-width: 790px; font-size: 12px; margin-top: 16px; }
+.ai-panel form { margin-top: 23px; }
+.ai-input-row { display: flex; gap: 10px; }
+.ai-input-row input { flex: 1; width: 100%; min-width: 0; padding: 14px 16px; border-radius: 9px; border: 1px solid #bcd7d2; background: white; color: var(--ink); }
+.ai-input-row button { border: 0; background: #126a72; border-radius: 9px; color: white; padding: 0 25px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.ai-input-row button:hover:not(:disabled) { background: #0d4e57; }
+.ai-prompts { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.ai-prompts span { color:var(--muted); font-size:11px; margin-right:5px; }
+.ai-prompts button { padding: 7px 12px; border: 1px solid #cddfd8; border-radius: 100px; background: #fffefa; color:#226b73; font-size: 11px; font-weight: 600; }
+.ai-prompts button:hover { background: #e2f1ea; }
+.ai-answer { background:#fffefa; border:1px solid #cfe3de; border-radius:12px; padding:24px 26px; margin-top:20px; }
+.ai-answer h3 { margin:0 0 13px; font-size:16px; }
+.ai-answer > p { white-space:pre-wrap; line-height:1.8; }
+#ai-sources { display:flex; flex-wrap:wrap; align-items:center; gap:12px; font-size:12px; margin-top:20px; }
+#ai-sources a { font-weight:700; }
+.ai-disclaimer { border-top:1px solid var(--line); padding-top:13px; margin-top:18px; color:var(--muted); font-size:11px; }
+@media (max-width:700px) { .ai-panel { margin-top:45px; padding:24px 20px; } .ai-input-row { flex-direction:column; } .ai-input-row button { padding:13px; } .ai-label { display:block; margin:4px 0 0; } }
