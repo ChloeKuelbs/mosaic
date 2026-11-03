@@ -10,6 +10,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from app.ai import router as ai_router
 
 API_URL = "https://clinicaltrials.gov/api/v2/studies"
 CONDITION = "postmenopausal osteoporosis"
@@ -104,6 +105,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Mosaic", version="0.1.0", lifespan=lifespan,
               description="Explore source-linked postmenopausal osteoporosis trial metadata.")
 
+
+app.include_router(ai_router)
 
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
