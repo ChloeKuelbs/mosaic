@@ -65,3 +65,6 @@
 @media(max-width:900px){.topic-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wellbeing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hub-hero:after{opacity:.25}}
 @media(max-width:620px){.hub-main,.wellbeing-main,.explore-main{padding:0 20px}.hub-page header nav{gap:12px;margin:0}.hub-page header nav a{font-size:10px}.hub-page header .header-note{display:none}.hub-hero{padding:70px 0}.topic-grid,.literature-grid,.wellbeing-grid{grid-template-columns:1fr}.tile-art{height:150px}.wellbeing-feature{padding:35px 26px;margin-bottom:60px}.age-panel{padding:24px 20px}.hub-topics{padding-bottom:55px}.hub-hero h1{font-size:59px}}
 @media(prefers-reduced-motion:reduce){.topic-tile{transition:none}}
+
+/* Keep editorial headings upright rather than italic across the hub and wellbeing pages. */
+.hub-page h1 em,.hub-page h2 em { font-style:normal; }
