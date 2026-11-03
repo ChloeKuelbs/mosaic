@@ -146,6 +146,7 @@ def health():
 async def compare_trials(
     intervention: Optional[str] = Query(None, min_length=1, max_length=200, pattern=r".*\S.*"),
     page_size: int = Query(10, ge=1, le=50),
+    topic: str = Query("bone-health"),
     page_token: Optional[str] = Query(None, min_length=1, max_length=4096),
     client: httpx.AsyncClient = Depends(get_client),
 ):
