@@ -97,3 +97,12 @@ To deploy, connect GitHub in Render, choose **New → Blueprint**, select `Chloe
 Work on `dev`, push changes to preview them on the development site, then open a pull request from `dev` to `main`. Merging updates the public site after checks pass. Avoid direct feature changes on `main`.
 
 Free services sleep when idle and share workspace usage allowances; expect a slower first request after inactivity. See [Render free-service limits](https://render.com/docs/free). An always-on plan or development-site authentication can be added later.
+
+## Women's health research hub
+
+The homepage now links to six condition-focused pages: bone health and osteoporosis, endometriosis, PMDD, postpartum depression, PCOS, and perimenopause/menopause. Each page reuses the trial explorer and Ask Mosaic workflow, with the ClinicalTrials.gov query constrained to that condition. Recent PubMed-indexed papers are retrieved via NCBI E-utilities and linked directly to their original records.
+
+**General Wellbeing** (`/wellbeing`) offers six age brackets, optional pregnancy/postpartum/perimenopause/menopause context, and nutrition, movement, sleep, and preventive health research categories. It links to NIH Office of Dietary Supplements, CDC, US physical activity guidance, and USPSTF resources, plus live PubMed publication listings.
+
+**Important evidence boundaries:** PubMed listings are publication-date ordered search matches, not curated clinical recommendations, quality assessments, or a systematic review. Age-group matching uses broad age-related keyword terms and is not exact age-range filtering. Do not interpret search matches as individualized vitamin or supplement needs. The existing Ask Mosaic endpoint analyzes *selected ClinicalTrials.gov records only*, not PubMed article full texts or wellbeing guidance. For medical decisions, consult qualified professionals and original sources.
+
