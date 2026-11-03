@@ -109,11 +109,40 @@ def test_explorer_and_assets_served(registry):
     page = client.get("/")
     assert page.status_code == 200
     assert page.headers["content-type"].startswith("text/html")
-    assert 'id="search-form"' in page.text
-    assert 'id="comparison-table"' in page.text
+    assert 'href="/explore/bone-health"' in page.text
+    assert 'href="/wellbeing"' in page.text
+    assert 'id="search-form"' in client.get('/explore/bone-health').text
+    assert 'id="comparison-table"' in client.get('/explore/bone-health').text
     for asset, content_type in [("app.js", "javascript"), ("styles.css", "text/css")]:
         response = client.get(f"/static/{asset}")
         assert response.status_code == 200
         assert content_type in response.headers["content-type"]
     assert client.get("/static/missing.css").status_code == 404
+    assert state["requests"] == []
+
+def test_topic_catalog_and_page_routes(registry):
+    client, state = registry
+    topics = client.get("/api/topics").json()
+    assert len(topics) == 6
+    assert {t["slug"] for t in topics} == {"bone-health", "endometriosis", "pmdd", "postpartum-depression", "pcos", "menopause"}
+    for t in topics:
+        assert client.get("/explore/" + t["slug"]).status_code == 200
+    assert client.get("/wellbeing").status_code == 200
+    assert client.get("/explore/not-a-topic").status_code == 404
+    assert client.get("/api/topics/not-a-topic").status_code == 404
+    assert client.get("/api/topics/not-a-topic/literature").status_code == 404
+    assert state["requests"] == []
+
+
+def test_topic_specific_trial_query(registry):
+    client, state = registry
+    client.get("/trials/compare", params={"topic":"endometriosis"})
+    assert state["requests"][0].url.params["query.cond"] == "endometriosis"
+    assert client.get("/trials/compare", params={"topic":"invalid"}).status_code == 422
+
+
+def test_wellbeing_validation(registry):
+    client, state = registry
+    for params in [{"age":"17-18"},{"domain":"miracle cures"},{"life_stage":"other"},{"limit":100}]:
+        assert client.get("/api/wellbeing/literature", params=params).status_code == 422
     assert state["requests"] == []
