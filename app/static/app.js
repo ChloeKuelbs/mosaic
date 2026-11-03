@@ -141,7 +141,7 @@ async function search(append = false) {
   $('search-button').disabled = true; $('load-more').disabled = true;
   document.querySelectorAll('[data-query]').forEach(b => b.disabled = true);
   $('search-button').textContent = 'Searching…'; $('status').textContent = 'Searching ClinicalTrials.gov…';
-  const params = new URLSearchParams({page_size: '10'});
+  const params = new URLSearchParams({page_size: '10', topic: window.mosaicTopic || 'bone-health'});
   if (activeQuery) params.set('intervention', activeQuery);
   if (append && nextToken) params.set('page_token', nextToken);
   try {
