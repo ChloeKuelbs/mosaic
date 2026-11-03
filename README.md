@@ -4,6 +4,8 @@ Mosaic is a women’s health evidence explorer, starting with **postmenopausal o
 
 The goal is to make study populations, interventions, designs, and outcomes easier to inspect. It does not rank treatments, calculate treatment effects, or offer medical advice. Registry entries are submitted records, not independently verified conclusions or a complete systematic review.
 
+https://mosaic-0mbm.onrender.com
+
 ## Run locally
 
 Python 3.9+ is required. No API key or database is needed. Internet access is required for registry searches.
