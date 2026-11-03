@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from app.ai import router as ai_router
+from app.topics import router as topics_router, TOPICS
 
 API_URL = "https://clinicaltrials.gov/api/v2/studies"
 CONDITION = "postmenopausal osteoporosis"
@@ -107,6 +108,7 @@ app = FastAPI(title="Mosaic", version="0.1.0", lifespan=lifespan,
 
 
 app.include_router(ai_router)
+app.include_router(topics_router)
 
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -114,6 +116,13 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 @app.get("/", include_in_schema=False)
 def home():
+    return FileResponse(STATIC_DIR / "home.html")
+
+
+@app.get("/explore/{slug}", include_in_schema=False)
+def explore_topic(slug: str):
+    if slug not in TOPICS:
+        raise HTTPException(404, "Unknown health topic")
     return FileResponse(STATIC_DIR / "index.html")
 
 
@@ -139,7 +148,9 @@ async def compare_trials(
     Reuse the same intervention and page size when following next_page_token.
     Search relevance does not establish clinical eligibility or evidence quality.
     """
-    params = {"query.cond": CONDITION, "format": "json", "pageSize": page_size,
+    if topic not in TOPICS:
+        raise HTTPException(422, "Unknown health topic")
+    params = {"query.cond": TOPICS[topic]["condition"], "format": "json", "pageSize": page_size,
               "countTotal": "true", "sort": "@relevance"}
     if intervention:
         params["query.intr"] = intervention.strip()
@@ -155,7 +166,7 @@ async def compare_trials(
     try:
         payload = response.json()
         return Comparison(
-            intervention_query=intervention.strip() if intervention else None,
+            condition=TOPICS[topic]["condition"], intervention_query=intervention.strip() if intervention else None,
             retrieved_at=datetime.now(timezone.utc), total_count=payload.get("totalCount"),
             next_page_token=payload.get("nextPageToken"),
             trials=[normalize(study) for study in payload["studies"]],
