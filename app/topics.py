@@ -1,6 +1,7 @@
 """Women's health topic catalog and recent PubMed literature (not a systematic review)."""
 from datetime import datetime, timezone
 import re
+from typing import Optional
 import httpx
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -17,8 +18,8 @@ TOPICS = {
 class LiteratureItem(BaseModel):
     pmid: str
     title: str
-    journal: str | None = None
-    published: str | None = None
+    journal: Optional[str] = None
+    published: Optional[str] = None
     authors: list[str] = Field(default_factory=list)
     url: str
 class LiteratureResponse(BaseModel):
