@@ -109,11 +109,31 @@ def test_explorer_and_assets_served(registry):
     page = client.get("/")
     assert page.status_code == 200
     assert page.headers["content-type"].startswith("text/html")
-    assert 'id="search-form"' in page.text
-    assert 'id="comparison-table"' in page.text
+    assert 'href="/explore/endometriosis"' in page.text
+    explorer = client.get('/explore/bone-health')
+    assert explorer.status_code == 200
+    assert 'id="search-form"' in explorer.text
+    assert 'id="comparison-table"' in explorer.text
     for asset, content_type in [("app.js", "javascript"), ("styles.css", "text/css")]:
         response = client.get(f"/static/{asset}")
         assert response.status_code == 200
         assert content_type in response.headers["content-type"]
     assert client.get("/static/missing.css").status_code == 404
     assert state["requests"] == []
+
+def test_topics_and_pages(registry):
+    client, _ = registry
+    topics = client.get("/api/topics").json()
+    assert len(topics) == 6
+    for topic in topics:
+        assert client.get("/explore/" + topic["slug"]).status_code == 200
+        assert client.get("/api/topics/" + topic["slug"]).json()["condition"] == topic["condition"]
+    assert client.get("/explore/unknown").status_code == 404
+    assert client.get("/api/topics/unknown/literature").status_code == 404
+
+
+def test_topic_scopes_registry_search(registry):
+    client, state = registry
+    client.get("/trials/compare", params={"topic": "endometriosis"})
+    assert state["requests"][0].url.params["query.cond"] == "endometriosis"
+    assert client.get("/trials/compare", params={"topic": "unknown"}).status_code == 422
