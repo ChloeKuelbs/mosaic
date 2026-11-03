@@ -5,6 +5,9 @@ Mosaic is a women’s health evidence explorer, starting with **postmenopausal o
 The goal is to make study populations, interventions, designs, and outcomes easier to inspect. It does not rank treatments, calculate treatment effects, or offer medical advice. Registry entries are submitted records, not independently verified conclusions or a complete systematic review.
 
 https://mosaic-0mbm.onrender.com
+<img width="2682" height="1628" alt="image" src="https://github.com/user-attachments/assets/cf2ff604-c732-4241-86e5-765747621210" />
+<img width="1966" height="1454" alt="image" src="https://github.com/user-attachments/assets/64ff34fa-c82a-4710-b802-ce8262343b72" />
+<img width="2220" height="1314" alt="image" src="https://github.com/user-attachments/assets/bec531be-d308-4461-916b-7bf3cfc426fe" />
 
 ## Run locally
 
