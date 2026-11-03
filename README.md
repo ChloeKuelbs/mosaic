@@ -63,6 +63,24 @@ For a manual live integration check, run the server and the search curl above. C
 
 `tests/test_api.py` covers the API through FastAPI's test client and an injected HTTP transport. Future work can add selected-trial comparisons, published evidence, and explicit evidence-quality assessments after the registry contract is validated.
 
+
+## Ask Mosaic — optional grounded AI analysis
+
+Select one to three trials and use **Ask Mosaic** to ask about their registry-described study design, eligibility, enrollment, or primary outcomes. The server fetches each selected NCT record from ClinicalTrials.gov directly before calling the language model. The model sees only bounded, whitelisted metadata; returned citation IDs are validated against the selected NCT identifiers. **These checks do not independently establish factual entailment of every claim.** Treat all AI responses as hypotheses to verify against the linked registry records.
+
+This is **not** treatment advice, evidence synthesis, systematic review, or clinical decision support. Registered outcome measures do not establish efficacy. AI answers are not independently verified and may contain errors.
+
+The feature is disabled unless you set `OPENAI_API_KEY` in your **Render service environment settings** (or your local shell). Never commit API keys to GitHub, put them in frontend JavaScript, or paste them into the app. Render's production and development services require separate configuration if both should have AI enabled.
+
+Optional environment variables:
+- `MOSAIC_AI_MODEL`: default `gpt-4o-mini` (the configured OpenAI account must have model access).
+- `MOSAIC_AI_PER_IP_HOURLY`: default `5`.
+- `MOSAIC_AI_DAILY_LIMIT`: default `40`.
+
+**Cost and abuse warning:** Each successful AI request uses paid OpenAI API tokens. The included quotas are lightweight, in-memory per-process guards, *not* production-grade rate limits; they reset on restart and don't coordinate across instances. For a public site, set a strict provider budget and add edge rate limiting or authentication before advertising the feature widely. If the key is absent, `POST /ai/ask` returns 503 while the trial search remains usable.
+
+Example POST body: `{"question":"How do these studies differ in design?","nct_ids":["NCT00000001"]}` using an actual valid registry ID. The endpoint validates inputs and fetches fresh source records; it never accepts client-supplied evidence.
+
 ## Public and development hosting (Render)
 
 The root `render.yaml` defines two free Python web services:
