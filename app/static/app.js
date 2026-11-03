@@ -5,6 +5,7 @@ const selected = new Set();
 let nextToken = null;
 let activeQuery = '';
 let loading = false;
+const topicSlug = decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || 'bone-health');
 const pretty = value => value == null || value === '' ? 'Not reported' : String(value).replaceAll('_', ' ').toLowerCase().replace(/^./, c => c.toUpperCase());
 const list = values => values?.length ? values.map(pretty).join(' · ') : 'Not reported';
 function element(tag, text, className) {
@@ -141,7 +142,7 @@ async function search(append = false) {
   $('search-button').disabled = true; $('load-more').disabled = true;
   document.querySelectorAll('[data-query]').forEach(b => b.disabled = true);
   $('search-button').textContent = 'Searching…'; $('status').textContent = 'Searching ClinicalTrials.gov…';
-  const params = new URLSearchParams({page_size: '10'});
+  const params = new URLSearchParams({page_size: '10', topic: topicSlug});
   if (activeQuery) params.set('intervention', activeQuery);
   if (append && nextToken) params.set('page_token', nextToken);
   try {
@@ -170,3 +171,43 @@ $('clear').addEventListener('click', () => { selected.clear(); renderCards(); re
 $('ai-form').addEventListener('submit', e => { e.preventDefault(); askAi(); });
 document.querySelectorAll('[data-ai-prompt]').forEach(b => b.addEventListener('click', () => { $('ai-question').value = b.dataset.aiPrompt; askAi(); }));
 syncAiState();
+
+async function loadTopic() {
+  try {
+    const r = await fetch('/api/topics/' + encodeURIComponent(topicSlug));
+    if (!r.ok) throw new Error('Unknown topic');
+    const t = await r.json();
+    document.title = t.name + ' · Mosaic';
+    $('topic-crumb').textContent = t.name;
+    $('topic-label').textContent = t.number + ' / ' + t.name.toUpperCase();
+    $('topic-description').textContent = t.name.toLowerCase();
+    $('scope-condition').textContent = t.name;
+    const suggestions = $('topic-suggestions'); suggestions.replaceChildren();
+    for (const name of t.examples) {
+      const b = element('button', name); b.type = 'button';
+      b.addEventListener('click', () => { $('intervention').value = name; search(); });
+      suggestions.append(b);
+    }
+  } catch (_) { $('topic-crumb').textContent = 'Research topic'; }
+}
+async function loadLiterature() {
+  const status = $('literature-status');
+  try {
+    const r = await fetch('/api/topics/' + encodeURIComponent(topicSlug) + '/literature?limit=8');
+    if (!r.ok) throw new Error('Recent publications are unavailable right now.');
+    const data = await r.json();
+    const target = $('literature-list'); target.replaceChildren();
+    for (const item of data.items) {
+      const card = element('article', undefined, 'literature-item');
+      const a = element('a', item.title + ' ↗');
+      a.href = 'https://pubmed.ncbi.nlm.nih.gov/' + encodeURIComponent(item.pmid) + '/';
+      a.target = '_blank'; a.rel = 'noopener noreferrer';
+      card.append(element('span', 'PUBMED · ' + item.pmid, 'literature-id'), a,
+        element('p', [item.journal, item.published, (item.authors || []).join(', ')].filter(Boolean).join(' · ')));
+      target.append(card);
+    }
+    status.textContent = data.items.length ? 'Showing ' + data.items.length + ' recently indexed publications. Open the source to read the abstract and study details.' : 'No recent publications returned. Try again later.';
+  } catch (err) { status.textContent = err.message; }
+}
+loadTopic();
+loadLiterature();
