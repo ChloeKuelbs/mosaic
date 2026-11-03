@@ -1,0 +1,67 @@
+/* Mosaic health hub: editorial ocean, image-free scientific line art */
+.hub-page { background:#f7f8f5; }
+.hub-page header { background:#f7f8f5; }
+.hub-page header nav { display:flex;gap:30px;align-items:center;margin-left:auto;margin-right:30px; }
+.hub-page header nav a { color:#28474c;text-decoration:none;font-size:13px; }
+.hub-page header nav a:hover,.hub-page header nav a[aria-current] { text-decoration:underline;text-underline-offset:6px; }
+.hub-main,.wellbeing-main,.explore-main { max-width:1250px;margin:auto;padding:0 36px; }
+.hub-hero { padding:106px 0 104px;position:relative;overflow:hidden; }
+.hub-hero:after { content:'';position:absolute;width:410px;height:410px;right:-60px;top:0;border:1px solid #c7ded8;border-radius:50%;box-shadow:0 0 0 35px #f0f5f1,0 0 0 36px #c7ded8,0 0 0 72px #f0f5f1,0 0 0 73px #c7ded8;opacity:.65;pointer-events:none; }
+.kicker { display:block;font-size:10px;letter-spacing:.19em;font-weight:700;color:#43847d; }
+.hub-hero h1,.wellbeing-hero h1 { font-family:'DM Serif Display',Georgia,serif;font-weight:400;letter-spacing:-.045em;font-size:clamp(58px,7.8vw,112px);line-height:1.04;margin:20px 0 24px;position:relative;z-index:1; }
+.hub-hero h1 em,.wellbeing-hero h1 em { color:#347a76;font-weight:400; }
+.hub-hero p,.wellbeing-hero p { max-width:570px;color:#49646a;font-size:17px;line-height:1.8;position:relative;z-index:1; }
+.hero-link { display:inline-flex;align-items:center;gap:22px;color:#0e5e63;font-size:13px;font-weight:700;margin-top:22px;text-decoration:none;border-bottom:1px solid #0e5e63;padding-bottom:8px; }
+.hub-topics { padding:30px 0 90px; }
+.topic-grid { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:28px; }
+.topic-tile { display:block;text-decoration:none!important;color:#18333b;border:1px solid #dce4df;border-radius:14px;overflow:hidden;background:#fffdfa;transition:transform .2s,box-shadow .2s; }
+.topic-tile:hover { transform:translateY(-4px);box-shadow:0 14px 32px #17383b16; }
+.tile-art { display:block;height:180px;position:relative;overflow:hidden; }
+.tile-number { position:absolute;top:17px;left:20px;color:#244a50;font-size:12px;letter-spacing:.13em; }
+.tile-art:before { content:'';position:absolute;width:170px;height:170px;border:1px solid #507d7799;border-radius:50%;top:30px;left:calc(50% - 85px);box-shadow:0 0 0 25px #ffffff22,0 0 0 26px #507d774a,0 0 0 52px #ffffff20,0 0 0 53px #507d7730; }
+.tile-art:after { content:'';position:absolute;top:0;left:50%;height:100%;border-left:1px solid #507d774d;transform:rotate(34deg); }
+.topic-tile.coral .tile-art:before { border-radius:42% 58% 72% 28%;transform:rotate(30deg); }
+.topic-tile.lilac .tile-art:before { border-radius:45% 55% 36% 64%;transform:rotate(-18deg); }
+.topic-tile.blue .tile-art:before { border-radius:75% 25% 45% 55%; }
+.topic-tile.mint .tile-art:before { border-radius:20% 80% 35% 65%;transform:rotate(50deg); }
+.topic-tile.gold .tile-art:before { width:230px;height:230px;top:65px;left:calc(50% - 115px); }
+.sage .tile-art {background:#dce9e1}.coral .tile-art{background:#f3ddd3}.lilac .tile-art{background:#e6dff0}.blue .tile-art{background:#d9e7ed}.mint .tile-art{background:#d7e9df}.gold .tile-art{background:#f0e5c9}
+.tile-copy { display:block;padding:22px 22px 28px;position:relative;min-height:142px; }
+.tile-copy strong { display:block;font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:25px;line-height:1.2;padding-right:12px; }
+.tile-copy small { display:block;font-size:12px;line-height:1.7;color:#63797c;max-width:245px;margin-top:9px; }
+.tile-arrow { position:absolute;right:17px;bottom:22px;font-size:20px;color:#1a7776; }
+.wellbeing-feature { background:#e6f0ea;border-radius:18px;padding:65px 70px;margin:15px 0 100px; }
+.wellbeing-feature h2,.hub-about h2 { font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:clamp(35px,5vw,60px);margin:12px 0; }
+.wellbeing-feature p,.hub-about p { color:#4f696b;max-width:650px;line-height:1.8; }
+.hub-about { padding:0 0 100px; }
+.back-link { display:inline-block;margin:30px 0 12px;color:#267a79;text-decoration:none;font-size:12px; }
+.explore-main { padding-bottom:50px; }
+.explore-main .intro { padding-top:45px; }
+.explore-main .intro h1 { max-width:1000px; }
+.explore-main .literature-panel { margin:56px 0; }
+.literature-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:22px 0; }
+.paper-card { background:#fffefa;border:1px solid #dae4df;border-radius:11px;padding:22px; }
+.paper-meta { display:block;font-size:10px;letter-spacing:.04em;color:#64817f;margin-bottom:12px; }
+.paper-card a { color:#183b40;text-decoration:none;font-family:'DM Serif Display',Georgia,serif;font-size:20px;line-height:1.4; }
+.paper-card a:hover { color:#126a72;text-decoration:underline; }
+.paper-card p { font-size:11px;color:#6b7c7e;line-height:1.5;margin-top:10px; }
+.wellbeing-hero { padding:48px 0 50px; }
+.wellbeing-hero h1 { font-size:clamp(55px,7vw,92px); }
+.age-panel { background:#e8f2ed;border:1px solid #d3e5dc;border-radius:14px;padding:30px 34px; }
+.age-panel h2 { font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:30px;margin:0 0 7px; }
+.age-options,.wellbeing-filter { display:flex;flex-wrap:wrap;gap:9px;margin:22px 0; }
+.age-options button,.wellbeing-filter button { border:1px solid #bad7cc;border-radius:50px;background:#fffefa;color:#24575b;padding:10px 18px;font-size:12px; }
+.age-options button[aria-pressed=true],.wellbeing-filter button[aria-pressed=true] { background:#155e65;color:white;border-color:#155e65; }
+.life-stage-label { display:block;font-size:12px;font-weight:700;margin:20px 0 8px; }
+#life-stage { background:white;border:1px solid #bad7cc;border-radius:9px;padding:11px 15px;min-width:240px;max-width:100%; }
+.wellbeing-sections { margin:75px 0; }
+.wellbeing-grid { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-top:24px; }
+.wellbeing-card { background:#fffefa;border:1px solid #d9e5dd;border-radius:12px;padding:24px; }
+.wellbeing-icon { display:block;color:#327d78;font-size:30px;margin-bottom:24px; }
+.wellbeing-card h3 { font-family:'DM Serif Display',Georgia,serif;font-size:23px;font-weight:400;margin:0 0 12px; }
+.wellbeing-card p { color:#5c7578;font-size:12px;line-height:1.7;min-height:92px; }
+.wellbeing-card a { display:block;color:#146b72;font-size:11px;font-weight:700;margin-top:13px;line-height:1.4; }
+.wellbeing-main .literature-panel { margin:70px 0; }
+@media(max-width:900px){.topic-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wellbeing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hub-hero:after{opacity:.25}}
+@media(max-width:620px){.hub-main,.wellbeing-main,.explore-main{padding:0 20px}.hub-page header nav{gap:12px;margin:0}.hub-page header nav a{font-size:10px}.hub-page header .header-note{display:none}.hub-hero{padding:70px 0}.topic-grid,.literature-grid,.wellbeing-grid{grid-template-columns:1fr}.tile-art{height:150px}.wellbeing-feature{padding:35px 26px;margin-bottom:60px}.age-panel{padding:24px 20px}.hub-topics{padding-bottom:55px}.hub-hero h1{font-size:59px}}
+@media(prefers-reduced-motion:reduce){.topic-tile{transition:none}}

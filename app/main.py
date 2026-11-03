@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from app.ai import router as ai_router
+from app.topics import router as topics_router, TOPICS
 
 API_URL = "https://clinicaltrials.gov/api/v2/studies"
 CONDITION = "postmenopausal osteoporosis"
@@ -53,6 +54,7 @@ class Trial(BaseModel):
 class Comparison(BaseModel):
     condition: str = CONDITION
     intervention_query: Optional[str] = None
+    topic: str = 'bone-health'
     retrieved_at: datetime
     total_count: Optional[int] = None
     next_page_token: Optional[str] = None
@@ -107,6 +109,7 @@ app = FastAPI(title="Mosaic", version="0.1.0", lifespan=lifespan,
 
 
 app.include_router(ai_router)
+app.include_router(topics_router)
 
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -115,6 +118,18 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 @app.get("/", include_in_schema=False)
 def home():
     return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.get("/explore/{slug}", include_in_schema=False)
+def explore_page(slug: str):
+    if slug not in TOPICS:
+        raise HTTPException(404, "Unknown health topic")
+    return FileResponse(STATIC_DIR / "explore.html")
+
+
+@app.get("/wellbeing", include_in_schema=False)
+def wellbeing_page():
+    return FileResponse(STATIC_DIR / "wellbeing.html")
 
 
 def get_client(request: Request) -> httpx.AsyncClient:
@@ -131,6 +146,7 @@ def health():
 async def compare_trials(
     intervention: Optional[str] = Query(None, min_length=1, max_length=200, pattern=r".*\S.*"),
     page_size: int = Query(10, ge=1, le=50),
+    topic: str = Query("bone-health"),
     page_token: Optional[str] = Query(None, min_length=1, max_length=4096),
     client: httpx.AsyncClient = Depends(get_client),
 ):
@@ -139,7 +155,9 @@ async def compare_trials(
     Reuse the same intervention and page size when following next_page_token.
     Search relevance does not establish clinical eligibility or evidence quality.
     """
-    params = {"query.cond": CONDITION, "format": "json", "pageSize": page_size,
+    if topic not in TOPICS:
+        raise HTTPException(422, "Unknown health topic")
+    params = {"query.cond": TOPICS[topic]["condition"], "format": "json", "pageSize": page_size,
               "countTotal": "true", "sort": "@relevance"}
     if intervention:
         params["query.intr"] = intervention.strip()
@@ -155,7 +173,7 @@ async def compare_trials(
     try:
         payload = response.json()
         return Comparison(
-            intervention_query=intervention.strip() if intervention else None,
+            topic=topic, condition=TOPICS[topic]["condition"], intervention_query=intervention.strip() if intervention else None,
             retrieved_at=datetime.now(timezone.utc), total_count=payload.get("totalCount"),
             next_page_token=payload.get("nextPageToken"),
             trials=[normalize(study) for study in payload["studies"]],
