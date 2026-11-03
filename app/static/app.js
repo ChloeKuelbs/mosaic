@@ -44,7 +44,7 @@ function renderCards() {
         return;
       }
       checkbox.checked ? selected.add(trial.nct_id) : selected.delete(trial.nct_id);
-      renderComparison();
+      renderComparison(); syncAiState();
     });
     label.append(checkbox, document.createTextNode('Add to comparison'));
     card.append(top, element('h3', trial.title || 'Title not reported'), dl, label);
@@ -92,11 +92,49 @@ function renderComparison() {
   }
   table.append(body);
 }
+function syncAiState() {
+  const disabled = !selected.size;
+  $('ai-submit').disabled = disabled || aiLoading;
+  if (!aiLoading) $('ai-message').textContent = disabled ? 'Select trial cards to enable analysis.' : `${selected.size} selected trial${selected.size === 1 ? '' : 's'} · Ask a question about these records.`;
+}
+let aiLoading = false;
+async function askAi() {
+  if (aiLoading || selected.size === 0) return;
+  aiLoading = true; syncAiState();
+  $('ai-submit').disabled = true;
+  $('ai-answer').hidden = true;
+  $('ai-message').textContent = 'Reading selected trial records and generating a grounded answer…';
+  try {
+    const response = await fetch('/ai/ask', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({question: $('ai-question').value.trim(), nct_ids: [...selected]})
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Unable to generate an answer right now.');
+    $('ai-answer-text').textContent = data.answer;
+    const sources = $('ai-sources'); sources.replaceChildren();
+    sources.append(element('strong', 'Registry sources: '));
+    const cited = new Set(data.cited_ids);
+    data.sources.filter(s => cited.has(s.nct_id)).forEach(s => {
+      const a = element('a', s.nct_id + ' ↗');
+      a.href = 'https://clinicaltrials.gov/study/' + encodeURIComponent(s.nct_id);
+      a.target = '_blank'; a.rel = 'noopener noreferrer';
+      sources.append(a);
+    });
+    if (!cited.size) sources.append(element('span', 'No supporting registry fields identified.'));
+    $('ai-answer').hidden = false;
+    $('ai-message').textContent = 'AI-generated answer. Verify details in the source records.';
+  } catch (err) {
+    $('ai-message').textContent = err.message;
+  } finally {
+    aiLoading = false; syncAiState();
+  }
+}
 async function search(append = false) {
   if (loading) return;
   loading = true;
   if (!append) {
-    activeQuery = $('intervention').value.trim(); nextToken = null; trials.clear(); selected.clear(); renderCards(); renderComparison();
+    activeQuery = $('intervention').value.trim(); nextToken = null; trials.clear(); selected.clear(); renderCards(); renderComparison(); syncAiState();
   }
   $('error').hidden = true; $('results').setAttribute('aria-busy', 'true');
   $('search-button').disabled = true; $('load-more').disabled = true;
@@ -127,3 +165,7 @@ $('search-form').addEventListener('submit', event => { event.preventDefault(); s
 document.querySelectorAll('[data-query]').forEach(button => button.addEventListener('click', () => { $('intervention').value = button.dataset.query; search(); }));
 $('load-more').addEventListener('click', () => search(true));
 $('clear').addEventListener('click', () => { selected.clear(); renderCards(); renderComparison(); });
+
+$('ai-form').addEventListener('submit', e => { e.preventDefault(); askAi(); });
+document.querySelectorAll('[data-ai-prompt]').forEach(b => b.addEventListener('click', () => { $('ai-question').value = b.dataset.aiPrompt; askAi(); }));
+syncAiState();
