@@ -53,6 +53,7 @@ function renderCards() {
 }
 function renderComparison() {
   $('comparison').hidden = selected.size === 0;
+  if ($('ai-answer')) $('ai-answer').hidden = true;
   const table = $('comparison-table'); table.replaceChildren();
   if (!selected.size) return;
   const chosen = [...selected].map(id => trials.get(id));
@@ -164,7 +165,7 @@ async function search(append = false) {
 $('search-form').addEventListener('submit', event => { event.preventDefault(); search(); });
 document.querySelectorAll('[data-query]').forEach(button => button.addEventListener('click', () => { $('intervention').value = button.dataset.query; search(); }));
 $('load-more').addEventListener('click', () => search(true));
-$('clear').addEventListener('click', () => { selected.clear(); renderCards(); renderComparison(); });
+$('clear').addEventListener('click', () => { selected.clear(); renderCards(); renderComparison(); syncAiState(); });
 
 $('ai-form').addEventListener('submit', e => { e.preventDefault(); askAi(); });
 document.querySelectorAll('[data-ai-prompt]').forEach(b => b.addEventListener('click', () => { $('ai-question').value = b.dataset.aiPrompt; askAi(); }));
