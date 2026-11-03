@@ -1,0 +1,62 @@
+# Mosaic
+
+Mosaic is a women’s health evidence explorer, starting with **postmenopausal osteoporosis**. This version includes a FastAPI backend and a responsive browser interface that searches ClinicalTrials.gov and displays trial records in a consistent, source-linked shape for comparison.
+
+The goal is to make study populations, interventions, designs, and outcomes easier to inspect. It does not rank treatments, calculate treatment effects, or offer medical advice. Registry entries are submitted records, not independently verified conclusions or a complete systematic review.
+
+## Run locally
+
+Python 3.9+ is required. No API key or database is needed. Internet access is required for registry searches.
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e '.[dev]'
+uvicorn app.main:app --reload
+```
+
+Open http://127.0.0.1:8000 for the explorer, or http://127.0.0.1:8000/docs for interactive API documentation.
+
+In the explorer, search an intervention (or leave it blank), select up to three trials, and scroll to the side-by-side comparison. Load more results without losing your selections. Starting a new search clears the selection. Expand eligibility criteria in the comparison and use the NCT links to inspect original records. Loading, empty, and retryable error states are shown explicitly.
+
+The frontend is plain HTML/CSS/JavaScript served by FastAPI; there is no separate frontend installation or build step. Fonts use Google Fonts with system fallbacks.
+
+```sh
+curl 'http://127.0.0.1:8000/trials/compare?intervention=alendronate&page_size=5'
+curl 'http://127.0.0.1:8000/health'
+```
+
+## API
+
+`GET /trials/compare` returns one page of trials with identical comparison fields:
+
+- `intervention`: optional registry intervention query, up to 200 characters.
+- `page_size`: 1–50, default 10.
+- `page_token`: opaque cursor returned as `next_page_token`; send it unchanged with the same search parameters to retrieve the next page.
+
+The backend always sends `query.cond=postmenopausal osteoporosis` to the [ClinicalTrials.gov v2 studies API](https://clinicaltrials.gov/data-api/api), optionally adds `query.intr`, and requests relevance ordering. These use the registry's search semantics. A match does **not** prove every participant is postmenopausal or that the study is appropriate for a particular person. Review `eligibility_criteria` and the source record.
+
+Each trial includes its NCT identifier, direct source URL, title, status, conditions, interventions, phase, study type, allocation, masking, enrollment and enrollment type, eligibility, primary outcomes with time frames, sponsor, last registry update, and whether registry results are posted. `retrieved_at` records the UTC retrieval time; `total_count` and `next_page_token` describe the registry search, not an exhaustive evidence review.
+
+Missing scalar fields are `null`; missing collections are `[]`. Enrollment can be estimated or actual. Outcome measures describe what a trial measures, not observed results. `has_results` is registry availability metadata; this version does not extract results or effect sizes. No generated clinical summaries are added.
+
+Invalid parameters return 422. Registry/network failures return 502; timeouts return 504. Malformed registry records fail the response rather than silently disappearing. `/health` checks local liveness only.
+
+## Tests
+
+```sh
+python -m pytest -q
+```
+
+Tests use an HTTP mock and synthetic records, so they run offline and deterministically. They exercise request scoping and cursor forwarding, mapping of design/enrollment/outcome fields, source-link construction, missing values, empty searches, input bounds, upstream failures, timeouts, and malformed records. These verify the adapter contract; they do not measure search recall or clinical relevance.
+
+For a manual live integration check, run the server and the search curl above. Confirm that source links resolve and compare returned fields with the registry record. Registry contents can change, so live results are not pinned test fixtures.
+
+## Scope and structure
+
+`app/main.py` contains typed response models, a registry-to-comparison mapper, and the API. One lifespan-managed asynchronous HTTP client provides connection reuse and a 15-second network timeout. The registry destination is fixed. Responses are fetched on demand, with no persistence, authentication, or background ingestion in this first version. Do not expose it publicly without deployment-specific access controls and traffic limits.
+
+`app/static/` holds the interface. Registry content is inserted as text, not HTML. The interface shares the API origin and needs no CORS configuration.
+
+`tests/test_api.py` covers the API through FastAPI's test client and an injected HTTP transport. Future work can add selected-trial comparisons, published evidence, and explicit evidence-quality assessments after the registry contract is validated.
